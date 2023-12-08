@@ -1,0 +1,37 @@
+# sudo apt update && sudo apt install curl gnupg2 lsb-release
+- name: Install dependencies for setting up sources
+  become: yes
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+  vars:
+    packages:
+    - curl
+    - gnupg2
+    - lsb-release
+
+# sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+- name: Setup gazebo sources
+  become: yes
+  apt_repository:
+    repo: "deb {{ gz_repository_url }} {{ ansible_distribution_release }} main"
+    state: present
+    filename: gazebo-stable
+
+# wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+- name: Setup gazebo keys
+  become: yes
+  apt_key:
+    url: "{{ gz_key_url }}"
+    state: present
+
+# sudo apt-get install gazebo
+- name: Install gazebo
+  become: yes
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+  vars:
+    packages:
+      - gazebo
+      # - "{{ 'ros-' + ros_distribution + '-gazebo-ros-pkgs' }}"
